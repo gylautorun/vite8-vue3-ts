@@ -1,0 +1,197 @@
+// 响应式断点混合器
+@mixin breakpoint($breakpoint) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    @media (min-width: map-get($breakpoints, $breakpoint)) {
+      @content;
+    }
+  } @else {
+    @warn "Unknown breakpoint: #{$breakpoint}";
+  }
+}
+
+// 响应式断点（最大宽度）混合器
+@mixin breakpoint-max($breakpoint) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    @media (max-width: map-get($breakpoints, $breakpoint)) {
+      @content;
+    }
+  } @else {
+    @warn "Unknown breakpoint: #{$breakpoint}";
+  }
+}
+
+// 响应式断点（范围）混合器
+@mixin breakpoint-between($min-breakpoint, $max-breakpoint) {
+  @if map-has-key($breakpoints, $min-breakpoint) and map-has-key($breakpoints, $max-breakpoint) {
+    @media (min-width: map-get($breakpoints, $min-breakpoint)) and (max-width: map-get($breakpoints, $max-breakpoint)) {
+      @content;
+    }
+  } @else {
+    @warn "Unknown breakpoint: #{$min-breakpoint} or #{$max-breakpoint}";
+  }
+}
+
+// Flex 布局混合器
+@mixin flex($direction: row, $justify: flex-start, $align: stretch, $wrap: nowrap) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: $justify;
+  align-items: $align;
+  flex-wrap: $wrap;
+}
+
+// Flex 居中混合器
+@mixin flex-center($direction: row) {
+  @include flex($direction, center, center);
+}
+
+// Flex 两端对齐混合器
+@mixin flex-between($direction: row) {
+  @include flex($direction, space-between, center);
+}
+
+// Grid 布局混合器
+@mixin grid($columns: 12, $gap: 1rem) {
+  display: grid;
+  grid-template-columns: repeat($columns, 1fr);
+  gap: $gap;
+}
+
+// 响应式 Grid 布局混合器
+@mixin grid-responsive($columns: 12, $gap: 1rem, $breakpoints: $breakpoints) {
+  @include grid($columns, $gap);
+  
+  @each $breakpoint, $value in $breakpoints {
+    @include breakpoint($breakpoint) {
+      grid-template-columns: repeat($columns, 1fr);
+    }
+  }
+}
+
+// 文本截断混合器
+@mixin truncate($lines: 1) {
+  @if $lines == 1 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  } @else {
+    display: -webkit-box;
+    -webkit-line-clamp: $lines;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+// 过渡效果混合器
+@mixin transition($properties: all, $duration: map-get($transitions, duration, normal), $timing: map-get($transitions, timing, ease)) {
+  transition: $properties $duration $timing;
+}
+
+// 阴影混合器
+@mixin shadow($shadow: base) {
+  @if map-has-key($shadows, $shadow) {
+    box-shadow: map-get($shadows, $shadow);
+  } @else {
+    box-shadow: $shadow;
+  }
+}
+
+// 边框混合器
+@mixin border($width: 1, $style: solid, $color: map-get($colors, gray, 300)) {
+  border: map-get($borders, width, $width) $style $color;
+}
+
+// 边框圆角混合器
+@mixin rounded($radius: base) {
+  @if map-has-key($borders, radius, $radius) {
+    border-radius: map-get($borders, radius, $radius);
+  } @else {
+    border-radius: $radius;
+  }
+}
+
+// 背景渐变混合器
+@mixin gradient($direction: to bottom, $from: primary, $to: secondary) {
+  @if map-has-key($colors, $from) {
+    $from-color: map-get($colors, $from);
+  } @else {
+    $from-color: $from;
+  }
+  
+  @if map-has-key($colors, $to) {
+    $to-color: map-get($colors, $to);
+  } @else {
+    $to-color: $to;
+  }
+  
+  background: linear-gradient($direction, $from-color, $to-color);
+}
+
+// 占位符文本混合器
+@mixin placeholder($color: map-get($colors, gray, 500)) {
+  &::placeholder {
+    color: $color;
+    opacity: 1;
+  }
+}
+
+// 鼠标悬停效果混合器
+@mixin hover-effect($transform: scale(1.05), $transition: all 0.3s ease) {
+  transition: $transition;
+  
+  &:hover {
+    transform: $transform;
+  }
+}
+
+// 按钮样式混合器
+@mixin button($background: primary, $color: white, $padding: 0.5rem 1rem, $rounded: md) {
+  display: inline-block;
+  padding: $padding;
+  background-color: map-get($colors, $background);
+  color: map-get($colors, $color);
+  border: none;
+  @include rounded($rounded);
+  @include transition;
+  cursor: pointer;
+  
+  &:hover {
+    opacity: 0.9;
+  }
+  
+  &:active {
+    transform: translateY(1px);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// 卡片样式混合器
+@mixin card($padding: 1.5rem, $rounded: lg, $shadow: base) {
+  background-color: map-get($colors, white);
+  padding: $padding;
+  @include rounded($rounded);
+  @include shadow($shadow);
+}
+
+// 容器样式混合器
+@mixin container($max-width: 1280px, $padding: 1rem) {
+  width: 100%;
+  max-width: $max-width;
+  margin: 0 auto;
+  padding: 0 $padding;
+}
+
+// 响应式容器混合器
+@mixin container-responsive($max-widths: (sm: 640px, md: 768px, lg: 1024px, xl: 1280px, '2xl': 1536px), $padding: 1rem) {
+  @include container(map-get($max-widths, '2xl'), $padding);
+  
+  @each $breakpoint, $max-width in $max-widths {
+    @include breakpoint($breakpoint) {
+      max-width: $max-width;
+    }
+  }
+}

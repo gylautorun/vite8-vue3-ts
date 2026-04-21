@@ -143,11 +143,14 @@ router.patch('/update/status/:id', auth, (req: Request, res: Response): void => 
 
     // 更新状态
     order.status = status as any;
+    
+    // 保存更新后的订单
+    const updatedOrder = Order.save(order);
 
     res.status(200).json({
       code: 200,
       message: '更新成功',
-      data: order.toJSON()
+      data: updatedOrder.toJSON()
     });
   } catch (error) {
     res.status(500).json({

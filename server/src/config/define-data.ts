@@ -343,14 +343,17 @@ export const db = {
       const index = dataStore.orders.findIndex(o => o.id === order.id);
       if (index === -1) {
         dataStore.orders.push(order);
+        saveData(DATA_FILES.orders, dataStore.orders);
+        return order;
       } else {
-        dataStore.orders[index] = {
+        const updatedOrder = {
           ...order,
           updatedAt: new Date().toISOString()
         };
+        dataStore.orders[index] = updatedOrder;
+        saveData(DATA_FILES.orders, dataStore.orders);
+        return updatedOrder;
       }
-      saveData(DATA_FILES.orders, dataStore.orders);
-      return order;
     },
     countDocuments: (query: any) => {
       if (Object.keys(query).length === 0) {

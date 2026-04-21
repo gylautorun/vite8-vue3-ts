@@ -60,14 +60,19 @@ class OrderModel {
     return db.orders.countDocuments(query);
   }
 
+  // 保存订单
+  save(order: Order): Order {
+    const savedOrder = db.orders.save(order);
+    return this.addMethods(savedOrder);
+  }
+
   // 为订单对象添加方法
   private addMethods(order: any): Order {
-    return {
-      ...order,
-      toJSON(): any {
-        return { ...order };
-      }
+    // 直接在原对象上添加方法，而不是返回一个新对象
+    order.toJSON = function(): any {
+      return { ...this };
     };
+    return order as Order;
   }
 }
 

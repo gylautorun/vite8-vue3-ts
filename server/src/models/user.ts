@@ -39,15 +39,43 @@ class UserModel {
   }
 
   // 根据 ID 查找用户
-  findById(id: number): User | null {
+  async findById(id: number): Promise<User | null> {
     const user = db.users.findById(id);
-    return user ? this.addMethods(user) : null;
+    console.log('根据 ID 查找用户:', id, user);
+    if (!user) return null;
+    
+    // 检查密码是否已加密（如果密码长度小于 60，可能是明文）
+    if (user.password && user.password.length < 60) {
+      console.log('密码需要加密:', user.password);
+      // 加密密码
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(user.password, salt);
+      // 更新数据库中的密码
+      db.users.save(user);
+      console.log('密码已加密:', user.password);
+    }
+    
+    return this.addMethods(user);
   }
 
   // 根据条件查找用户
-  findOne(query: any): User | null {
+  async findOne(query: any): Promise<User | null> {
     const user = db.users.findOne(query);
-    return user ? this.addMethods(user) : null;
+    console.log('查找用户:', query, user);
+    if (!user) return null;
+    
+    // 检查密码是否已加密（如果密码长度小于 60，可能是明文）
+    if (user.password && user.password.length < 60) {
+      console.log('密码需要加密:', user.password);
+      // 加密密码
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(user.password, salt);
+      // 更新数据库中的密码
+      db.users.save(user);
+      console.log('密码已加密:', user.password);
+    }
+    
+    return this.addMethods(user);
   }
 
   // 查找所有用户
@@ -72,7 +100,10 @@ class UserModel {
     return {
       ...user,
       async comparePassword(password: string): Promise<boolean> {
-        return await bcrypt.compare(password, user.password);
+        console.log('验证密码:', password, user.password);
+        const result = await bcrypt.compare(password, user.password);
+        console.log('密码验证结果:', result);
+        return result;
       },
       toJSON(): any {
         const userObj = { ...user };

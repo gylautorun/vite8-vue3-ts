@@ -28,7 +28,8 @@ const connectDB = async (): Promise<void> => {
       id: 1,
       name: '管理员',
       email: 'admin@example.com',
-      password: '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', // 密码: admin123
+      // password: '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW', // 密码: admin123
+      password: 'admin123', // 明文密码，会在 User 模型中自动加密
       avatar: 'https://via.placeholder.com/150',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()

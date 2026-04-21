@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '../utils/jwt';
 import User from '../models/user';
 
-const auth = (req: Request, res: Response, next: NextFunction): void => {
+const auth = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
@@ -24,7 +24,8 @@ const auth = (req: Request, res: Response, next: NextFunction): void => {
       return;
     }
 
-    const user = User.findById(decoded.id);
+    const user = await User.findById(parseInt(decoded.id));
+
     if (!user) {
       res.status(401).json({
         code: 401,

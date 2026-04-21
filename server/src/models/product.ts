@@ -61,12 +61,16 @@ class ProductModel {
 
   // 为商品对象添加方法
   private addMethods(product: any): Product {
-    return {
-      ...product,
-      toJSON(): any {
-        return { ...product };
-      }
+    // 直接在原对象上添加方法，而不是返回一个新对象
+    product.toJSON = function(): any {
+      return { ...this };
     };
+    return product as Product;
+  }
+
+  // 保存商品
+  save(product: any): Product {
+    return this.addMethods(db.products.save(product));
   }
 }
 

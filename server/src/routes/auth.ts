@@ -10,7 +10,7 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
     const { name, email, password } = req.body;
 
     // 检查邮箱是否已存在
-    const existingUser = User.findOne({ email });
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       res.status(400).json({
         code: 400,
@@ -49,7 +49,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
     const { email, password } = req.body;
 
     // 查找用户
-    const user = User.findOne({ email });
+    const user = await User.findOne({ email });
     if (!user) {
       res.status(400).json({
         code: 400,
@@ -60,11 +60,21 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
     }
 
     // 验证密码
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      res.status(400).json({
-        code: 400,
-        message: '邮箱或密码错误',
+    try {
+      const isMatch = await user.comparePassword(password);
+      if (!isMatch) {
+        res.status(400).json({
+          code: 400,
+          message: '邮箱或密码错误',
+          data: null
+        });
+        return;
+      }
+    } catch (error) {
+      console.error('密码验证错误:', error);
+      res.status(500).json({
+        code: 500,
+        message: '服务器错误',
         data: null
       });
       return;

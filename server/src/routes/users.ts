@@ -35,10 +35,10 @@ router.get('/list', auth, (req: Request, res: Response): void => {
 });
 
 // 获取用户详情
-router.get('/detail/:id', auth, (req: Request, res: Response): void => {
+router.get('/detail/:id', auth, async (req: Request, res: Response): Promise<void> => {
   try {
     const id = req.params.id as string;
-    const user = User.findById(parseInt(id));
+    const user = await User.findById(parseInt(id));
     if (!user) {
       res.status(404).json({
         code: 404,
@@ -68,7 +68,7 @@ router.post('/create', auth, async (req: Request, res: Response): Promise<void> 
     const { name, email, password } = req.body;
 
     // 检查邮箱是否已存在
-    const existingUser = User.findOne({ email });
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       res.status(400).json({
         code: 400,
@@ -102,7 +102,7 @@ router.put('/:id', auth, async (req: Request, res: Response): Promise<void> => {
     const id = req.params.id as string;
 
     // 检查用户是否存在
-    const user = User.findById(parseInt(id));
+    const user = await User.findById(parseInt(id));
     if (!user) {
       res.status(404).json({
         code: 404,
@@ -114,7 +114,7 @@ router.put('/:id', auth, async (req: Request, res: Response): Promise<void> => {
 
     // 检查邮箱是否已被其他用户使用
     if (email && email !== user.email) {
-      const existingUser = User.findOne({ email });
+      const existingUser = await User.findOne({ email });
       if (existingUser) {
         res.status(400).json({
           code: 400,

@@ -107,10 +107,13 @@ router.put('/update/:id', auth, (req: Request, res: Response): void => {
     if (image) product.image = image;
     if (category) product.category = category;
 
+    // 保存更新后的商品
+    const updatedProduct = Product.save(product);
+
     res.status(200).json({
       code: 200,
       message: '更新成功',
-      data: product.toJSON()
+      data: updatedProduct.toJSON()
     });
   } catch (error) {
     res.status(500).json({

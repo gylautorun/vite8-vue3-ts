@@ -15,19 +15,18 @@ if (!fs.existsSync(DATA_DIR)) {
   console.log('数据目录已存在');
 }
 
-// 数据文件路径
-const DATA_FILES = {
-  users: path.join(DATA_DIR, 'users.json'),
-  products: path.join(DATA_DIR, 'products.json'),
-  orders: path.join(DATA_DIR, 'orders.json')
-};
-
-// 数据存储
-interface DataStore {
-  users: any[];
-  products: any[];
-  orders: any[];
-}
+// // 数据文件路径
+// const DATA_FILES = {
+//   users: path.join(DATA_DIR, 'users.json'),
+//   products: path.join(DATA_DIR, 'products.json'),
+//   orders: path.join(DATA_DIR, 'orders.json')
+// };
+// // 数据存储
+// interface DataStore {
+//   users: any[];
+//   products: any[];
+//   orders: any[];
+// }
 
 // 从文件读取数据
 const loadData = (filePath: string): any[] => {
@@ -45,30 +44,97 @@ const loadData = (filePath: string): any[] => {
 // 写入数据到文件
 const saveData = (filePath: string, data: any[]): void => {
   try {
+    // 确保文件所在目录存在
+    const dir = path.dirname(filePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
   } catch (error) {
     console.error(`写入数据文件失败 ${filePath}:`, error);
   }
 };
 
-const dataStore: DataStore = {
-  users: loadData(DATA_FILES.users),
-  products: loadData(DATA_FILES.products),
-  orders: loadData(DATA_FILES.orders)
-};
+// const dataStore: DataStore = {
+//   users: loadData(DATA_FILES.users),
+//   products: loadData(DATA_FILES.products),
+//   orders: loadData(DATA_FILES.orders)
+// };
 
 // 生成唯一 ID
 const generateId = (): number => {
   return Date.now() + Math.floor(Math.random() * 1000);
 };
 
-// 模拟数据库连接
+// 数据存储 - 使用 Map 动态管理不同前缀的数据
+const dataStore = new Map<string, any[]>();
+
+// 获取数据文件路径
+const getDataFilePath = (prefix: string, collection: string): string => {
+  if (prefix && prefix !== 'default') {
+    return path.join(DATA_DIR, prefix, `${collection}.json`);
+  }
+  return path.join(DATA_DIR, `${collection}.json`);
+};
+
+const getCollection = (prefix: string, collection: string): any[] => {
+  const key = `${prefix}:${collection}`;
+  if (!dataStore.has(key)) {
+    const data = loadData(getDataFilePath(prefix, collection));
+    dataStore.set(key, data);
+  }
+  return dataStore.get(key) || [];
+};
+
+// 保存数据集合
+const saveCollection = (prefix: string, collection: string): void => {
+  const data = dataStore.get(`${prefix}:${collection}`) || [];
+  saveData(getDataFilePath(prefix, collection), data);
+};
+
+const matchRegex = (value: any, regex: any): boolean => {
+  if (!regex.$regex) return false;
+  const pattern = new RegExp(regex.$regex, regex.$options || '');
+  return pattern.test(value);
+};
+
+const matchCondition = (item: any, condition: any): boolean => {
+  for (const key in condition) {
+    const condValue = condition[key];
+    if (condValue && typeof condValue === 'object' && condValue.$regex) {
+      if (!matchRegex(item[key], condValue)) return false;
+    } else if (item[key] !== condValue) {
+      return false;
+    }
+  }
+  return true;
+};
+
+const matchQuery = (item: any, query: any): boolean => {
+  for (const key in query) {
+    if (key === '$or') {
+      if (!query[key].some((condition: any) => matchCondition(item, condition))) {
+        return false;
+      }
+    } else if (!matchCondition(item, { [key]: query[key] })) {
+      return false;
+    }
+  }
+  return true;
+};
+
 const connectDB = async (): Promise<void> => {
   console.log('内存数据库连接成功');
   
-  // 初始化一些示例数据（仅当数据为空时）
-  if (dataStore.users.length === 0) {
-    dataStore.users.push({
+  // 初始化默认集合的示例数据
+  initCollection('default', 'users');
+  initCollection('default', 'products');
+  initCollection('default', 'orders');
+  
+  // 初始化用户数据
+  const users = getCollection('default', 'users');
+  if (users.length === 0) {
+    users.push({
       id: 1,
       name: '管理员',
       email: 'admin@example.com',
@@ -77,298 +143,74 @@ const connectDB = async (): Promise<void> => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     });
-    saveData(DATA_FILES.users, dataStore.users);
+    saveCollection('default', 'users');
   }
-  
-  if (dataStore.products.length === 0) {
-    dataStore.products.push(
-      {
-        id: 1,
-        name: 'iPhone 15',
-        price: 7999,
-        description: '苹果手机',
-        image: 'https://via.placeholder.com/300',
-        category: '手机',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      },
-      {
-        id: 2,
-        name: 'MacBook Pro',
-        price: 12999,
-        description: '苹果笔记本电脑',
-        image: 'https://via.placeholder.com/300',
-        category: '电脑',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
+
+  const products = getCollection('default', 'products');
+  if (products.length === 0) {
+    products.push(
+      { id: 1, name: 'iPhone 15', price: 7999, description: '苹果手机', image: 'https://via.placeholder.com/300', category: '手机', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+      { id: 2, name: 'MacBook Pro', price: 12999, description: '苹果笔记本电脑', image: 'https://via.placeholder.com/300', category: '电脑', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
     );
-    saveData(DATA_FILES.products, dataStore.products);
+    saveCollection('default', 'products');
   }
 };
 
-// 导出内存数据库操作方法
+const initCollection = (prefix: string, collection: string): void => {
+  getCollection(prefix, collection);
+};
+
+const createCollectionMethods = (prefix: string, collection: string) => {
+  const getData = () => getCollection(prefix, collection);
+
+  return {
+    find: (query: any) => {
+      const data = getData();
+      if (Object.keys(query).length === 0) return data;
+      return data.filter(item => matchQuery(item, query));
+    },
+    findOne: (query: any) => getData().find(item => matchQuery(item, query)),
+    findById: (id: number) => getData().find(item => item.id === id),
+    findByIdAndDelete: (id: number) => {
+      const data = getData();
+      const index = data.findIndex(item => item.id === id);
+      if (index === -1) return null;
+      const item = data.splice(index, 1)[0];
+      saveCollection(prefix, collection);
+      return item;
+    },
+    create: (item: any) => {
+      const data = getData();
+      const newItem = { ...item, id: generateId(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+      data.push(newItem);
+      saveCollection(prefix, collection);
+      return newItem;
+    },
+    save: (item: any) => {
+      const data = getData();
+      const index = data.findIndex(i => i.id === item.id);
+      if (index === -1) {
+        data.push(item);
+      } else {
+        data[index] = { ...item, updatedAt: new Date().toISOString() };
+      }
+      saveCollection(prefix, collection);
+      return data[index] || item;
+    },
+    countDocuments: (query: any = {}) => {
+      const data = getData();
+      if (Object.keys(query).length === 0) return data.length;
+      return data.filter(item => matchQuery(item, query)).length;
+    },
+    distinct: (field: string) => [...new Set(getData().map(item => item[field]))]
+  };
+};
+
 export const db = {
-  // 用户操作
-  users: {
-    find: (query: any) => {
-      if (Object.keys(query).length === 0) {
-        return dataStore.users;
-      }
-      return dataStore.users.filter(user => {
-        for (const key in query) {
-          if (user[key] !== query[key]) {
-            return false;
-          }
-        }
-        return true;
-      });
-    },
-    findOne: (query: any) => {
-      return dataStore.users.find(user => {
-        for (const key in query) {
-          if (user[key] !== query[key]) {
-            return false;
-          }
-        }
-        return true;
-      });
-    },
-    findById: (id: number) => {
-      return dataStore.users.find(user => user.id === id);
-    },
-    findByIdAndDelete: (id: number) => {
-      const index = dataStore.users.findIndex(user => user.id === id);
-      if (index === -1) {
-        return null;
-      }
-      const user = dataStore.users[index];
-      dataStore.users.splice(index, 1);
-      saveData(DATA_FILES.users, dataStore.users);
-      return user;
-    },
-    create: (user: any) => {
-      const newUser = {
-        ...user,
-        id: generateId(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      dataStore.users.push(newUser);
-      saveData(DATA_FILES.users, dataStore.users);
-      return newUser;
-    },
-    save: (user: any) => {
-      const index = dataStore.users.findIndex(u => u.id === user.id);
-      if (index === -1) {
-        dataStore.users.push(user);
-      } else {
-        dataStore.users[index] = {
-          ...user,
-          updatedAt: new Date().toISOString()
-        };
-      }
-      saveData(DATA_FILES.users, dataStore.users);
-      return user;
-    },
-    countDocuments: () => {
-      return dataStore.users.length;
-    }
-  },
-  
-  // 商品操作
-  products: {
-    find: (query: any) => {
-      if (Object.keys(query).length === 0) {
-        return dataStore.products;
-      }
-      return dataStore.products.filter(product => {
-        for (const key in query) {
-          if (key === '$or') {
-            const conditions = query[key];
-            if (!conditions.some((condition: any) => {
-              for (const cKey in condition) {
-                if (condition[cKey].$regex) {
-                  const regex = new RegExp(condition[cKey].$regex, condition[cKey].$options);
-                  if (regex.test(product[cKey])) {
-                    return true;
-                  }
-                }
-              }
-              return false;
-            })) {
-              return false;
-            }
-          } else if (product[key] !== query[key]) {
-            return false;
-          }
-        }
-        return true;
-      });
-    },
-    findOne: (query: any) => {
-      return dataStore.products.find(product => {
-        for (const key in query) {
-          if (product[key] !== query[key]) {
-            return false;
-          }
-        }
-        return true;
-      });
-    },
-    findById: (id: number) => {
-      return dataStore.products.find(product => product.id === id);
-    },
-    findByIdAndDelete: (id: number) => {
-      const index = dataStore.products.findIndex(product => product.id === id);
-      if (index === -1) {
-        return null;
-      }
-      const product = dataStore.products[index];
-      dataStore.products.splice(index, 1);
-      saveData(DATA_FILES.products, dataStore.products);
-      return product;
-    },
-    create: (product: any) => {
-      const newProduct = {
-        ...product,
-        id: generateId(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      dataStore.products.push(newProduct);
-      saveData(DATA_FILES.products, dataStore.products);
-      return newProduct;
-    },
-    save: (product: any) => {
-      const index = dataStore.products.findIndex(p => p.id === product.id);
-      if (index === -1) {
-        dataStore.products.push(product);
-      } else {
-        dataStore.products[index] = {
-          ...product,
-          updatedAt: new Date().toISOString()
-        };
-      }
-      saveData(DATA_FILES.products, dataStore.products);
-      return product;
-    },
-    countDocuments: (query: any) => {
-      if (Object.keys(query).length === 0) {
-        return dataStore.products.length;
-      }
-      return dataStore.products.filter(product => {
-        for (const key in query) {
-          if (key === '$or') {
-            const conditions = query[key];
-            if (!conditions.some((condition: any) => {
-              for (const cKey in condition) {
-                if (condition[cKey].$regex) {
-                  const regex = new RegExp(condition[cKey].$regex, condition[cKey].$options);
-                  if (regex.test(product[cKey])) {
-                    return true;
-                  }
-                }
-              }
-              return false;
-            })) {
-              return false;
-            }
-          } else if (product[key] !== query[key]) {
-            return false;
-          }
-        }
-        return true;
-      }).length;
-    },
-    distinct: (field: string) => {
-      const values = new Set();
-      dataStore.products.forEach(product => {
-        values.add(product[field]);
-      });
-      return Array.from(values);
-    }
-  },
-  
-  // 订单操作
-  orders: {
-    find: (query: any) => {
-      if (Object.keys(query).length === 0) {
-        return dataStore.orders;
-      }
-      return dataStore.orders.filter(order => {
-        for (const key in query) {
-          if (order[key] !== query[key]) {
-            return false;
-          }
-        }
-        return true;
-      });
-    },
-    findOne: (query: any) => {
-      return dataStore.orders.find(order => {
-        for (const key in query) {
-          if (order[key] !== query[key]) {
-            return false;
-          }
-        }
-        return true;
-      });
-    },
-    findById: (id: number) => {
-      return dataStore.orders.find(order => order.id === id);
-    },
-    findByIdAndDelete: (id: number) => {
-      const index = dataStore.orders.findIndex(order => order.id === id);
-      if (index === -1) {
-        return null;
-      }
-      const order = dataStore.orders[index];
-      dataStore.orders.splice(index, 1);
-      saveData(DATA_FILES.orders, dataStore.orders);
-      return order;
-    },
-    create: (order: any) => {
-      const newOrder = {
-        ...order,
-        id: generateId(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      dataStore.orders.push(newOrder);
-      saveData(DATA_FILES.orders, dataStore.orders);
-      return newOrder;
-    },
-    save: (order: any) => {
-      const index = dataStore.orders.findIndex(o => o.id === order.id);
-      if (index === -1) {
-        dataStore.orders.push(order);
-        saveData(DATA_FILES.orders, dataStore.orders);
-        return order;
-      } else {
-        const updatedOrder = {
-          ...order,
-          updatedAt: new Date().toISOString()
-        };
-        dataStore.orders[index] = updatedOrder;
-        saveData(DATA_FILES.orders, dataStore.orders);
-        return updatedOrder;
-      }
-    },
-    countDocuments: (query: any) => {
-      if (Object.keys(query).length === 0) {
-        return dataStore.orders.length;
-      }
-      return dataStore.orders.filter(order => {
-        for (const key in query) {
-          if (order[key] !== query[key]) {
-            return false;
-          }
-        }
-        return true;
-      }).length;
-    }
-  }
+  users: createCollectionMethods('default', 'users'),
+  products: createCollectionMethods('default', 'products'),
+  orders: createCollectionMethods('default', 'orders'),
+  getCollection: (prefix: string, collection: string) => createCollectionMethods(prefix, collection)
 };
 
 export default connectDB;

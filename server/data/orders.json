@@ -64,9 +64,9 @@
         "price": 12999
       }
     ],
-    "status": "paid",
+    "status": "shipped",
     "id": 1776765052978,
     "createdAt": "2026-04-21T09:50:52.257Z",
-    "updatedAt": "2026-04-21T09:52:44.679Z"
+    "updatedAt": "2026-04-21T14:02:18.112Z"
   }
 ]

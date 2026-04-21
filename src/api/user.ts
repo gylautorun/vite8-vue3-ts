@@ -10,7 +10,7 @@ const userApi = {
    * @returns 用户列表
    */
   getUsers(params: PaginationParams): Promise<PaginationResponse<User>> {
-    return api.get('/users', params);
+    return api.get('/users/list', params);
   },
   
   /**
@@ -19,7 +19,7 @@ const userApi = {
    * @returns 用户详情
    */
   getUserById(id: number): Promise<User> {
-    return api.get(`/users/${id}`);
+    return api.get(`/users/detail/${id}`);
   },
   
   /**
@@ -28,7 +28,7 @@ const userApi = {
    * @returns 创建的用户
    */
   createUser(data: Partial<User>): Promise<User> {
-    return api.post('/users', data);
+    return api.post('/users/create', data);
   },
   
   /**
@@ -47,7 +47,7 @@ const userApi = {
    * @returns 操作结果
    */
   deleteUser(id: number): Promise<boolean> {
-    return api.delete(`/users/${id}`);
+    return api.delete(`/users/delete/${id}`);
   },
   
   /**

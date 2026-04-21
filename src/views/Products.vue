@@ -108,6 +108,7 @@
 import { ref, onMounted } from 'vue';
 import { useProductStore } from '../store/product';
 import { Button, Card, Input } from '../components';
+import type { Product } from '../types';
 
 const productStore = useProductStore();
 
@@ -123,9 +124,9 @@ const searchKeyword = ref('');
 // 模态框状态
 const showModal = ref(false);
 const isEditing = ref(false);
-const formData = ref({
+const formData = ref<Partial<Product>>({
   name: '',
-  price: '',
+  price: 0,
   description: '',
   image: '',
   category: ''
@@ -179,7 +180,7 @@ const openAddProductModal = () => {
   isEditing.value = false;
   formData.value = {
     name: '',
-    price: '',
+    price: 0,
     description: '',
     image: '',
     category: ''
@@ -187,11 +188,12 @@ const openAddProductModal = () => {
   showModal.value = true;
 };
 
-const openEditProductModal = (product: any) => {
+const openEditProductModal = (product: Product) => {
   isEditing.value = true;
   formData.value = {
+    id: product.id,
     name: product.name,
-    price: product.price.toString(),
+    price: product.price,
     description: product.description,
     image: product.image,
     category: product.category
@@ -203,13 +205,15 @@ const submitForm = async () => {
   loading.value = true;
   if (isEditing.value) {
     // 编辑商品
-    // 这里需要获取当前编辑的商品 ID
-    // await productStore.updateProduct(productId, formData.value);
+    await productStore.updateProduct(formData.value.id, {
+      ...formData.value,
+      price: Number(formData.value.price)
+    });
   } else {
     // 添加商品
     await productStore.createProduct({
       ...formData.value,
-      price: parseFloat(formData.value.price)
+      price: Number(formData.value.price)
     });
   }
   showModal.value = false;

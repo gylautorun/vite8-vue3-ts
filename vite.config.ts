@@ -34,7 +34,7 @@ export default defineConfig(({ mode }) => {
       // 热更新配置（Vite 8 新增优化，提升热更新速度）
       hmr: {
         // 禁用热更新的文件（避免敏感文件更新导致页面刷新）
-        exclude: ['node_modules/**/*'],
+        exclude: ['node_modules/**/*', 'server/**/*'],
         // 热更新超时时间（防止网络差导致热更新失败）
         timeout: 3000
       },

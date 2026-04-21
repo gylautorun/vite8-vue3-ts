@@ -10,7 +10,7 @@ const productApi = {
    * @returns 商品列表
    */
   getProducts(params: PaginationParams): Promise<PaginationResponse<Product>> {
-    return api.get('/products', params);
+    return api.get('/products/list', params);
   },
   
   /**
@@ -19,7 +19,7 @@ const productApi = {
    * @returns 商品详情
    */
   getProductById(id: number): Promise<Product> {
-    return api.get(`/products/${id}`);
+    return api.get(`/products/detail/${id}`);
   },
   
   /**
@@ -28,7 +28,7 @@ const productApi = {
    * @returns 创建的商品
    */
   createProduct(data: Partial<Product>): Promise<Product> {
-    return api.post('/products', data);
+    return api.post('/products/create', data);
   },
   
   /**
@@ -38,7 +38,7 @@ const productApi = {
    * @returns 更新后的商品
    */
   updateProduct(id: number, data: Partial<Product>): Promise<Product> {
-    return api.put(`/products/${id}`, data);
+    return api.put(`/products/update/${id}`, data);
   },
   
   /**
@@ -47,7 +47,7 @@ const productApi = {
    * @returns 操作结果
    */
   deleteProduct(id: number): Promise<boolean> {
-    return api.delete(`/products/${id}`);
+    return api.delete(`/products/delete/${id}`);
   },
   
   /**

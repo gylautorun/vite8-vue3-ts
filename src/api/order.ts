@@ -10,7 +10,7 @@ const orderApi = {
    * @returns 订单列表
    */
   getOrders(params: PaginationParams): Promise<PaginationResponse<Order>> {
-    return api.get('/orders', params);
+    return api.get('/orders/list', params);
   },
   
   /**
@@ -19,7 +19,7 @@ const orderApi = {
    * @returns 订单详情
    */
   getOrderById(id: number): Promise<Order> {
-    return api.get(`/orders/${id}`);
+    return api.get(`/orders/detail/${id}`);
   },
   
   /**
@@ -28,7 +28,7 @@ const orderApi = {
    * @returns 创建的订单
    */
   createOrder(data: { userId: number; items: Array<{ productId: number; quantity: number }> }): Promise<Order> {
-    return api.post('/orders', data);
+    return api.post('/orders/create', data);
   },
   
   /**
@@ -38,7 +38,7 @@ const orderApi = {
    * @returns 更新后的订单
    */
   updateOrderStatus(id: number, status: Order['status']): Promise<Order> {
-    return api.patch(`/orders/${id}/status`, { status });
+    return api.patch(`/orders/update/status/${id}`, { status });
   },
   
   /**
@@ -47,7 +47,7 @@ const orderApi = {
    * @returns 操作结果
    */
   deleteOrder(id: number): Promise<boolean> {
-    return api.delete(`/orders/${id}`);
+    return api.delete(`/orders/delete/${id}`);
   },
   
   /**
@@ -57,7 +57,7 @@ const orderApi = {
    * @returns 订单列表
    */
   getUserOrders(userId: number, params: PaginationParams): Promise<PaginationResponse<Order>> {
-    return api.get(`/users/${userId}/orders`, params);
+    return api.get(`/userOrders/${userId}`, params);
   }
 };
 

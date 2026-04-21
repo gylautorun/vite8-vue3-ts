@@ -28,6 +28,15 @@ service.interceptors.request.use(
   }
 );
 
+/**
+ * 跳转到登录页
+ */
+function redirectToLogin() {
+  // 跳转到登录页
+  localStorage.removeItem('token');
+  localStorage.removeItem('userInfo');
+  window.location.href = '/login';
+}
 // 响应拦截器
 service.interceptors.response.use(
   (response: AxiosResponse<ApiResponse>) => {
@@ -40,10 +49,25 @@ service.interceptors.response.use(
       
       // 处理特定错误码
       switch (res.code) {
+        case 40001:
+          // 未登录，跳转到登录页
+          console.error('未登录，请重新登录');
+          // 跳转到登录页
+          redirectToLogin();
+          break;
+        case 40002:
+          // 用户不存在
+          console.error('用户不存在');
+          break;
+        case 40003:
+          // 无权限
+          console.error('无权限访问');
+          break;
         case 401:
           // 未授权，跳转到登录页
           console.error('未授权，请重新登录');
-          // 可以在这里添加跳转到登录页的逻辑
+          // 跳转到登录页
+          redirectToLogin();
           break;
         case 403:
           // 禁止访问
@@ -81,6 +105,7 @@ service.interceptors.response.use(
     switch (status) {
       case 401:
         console.error('未授权，请重新登录');
+        redirectToLogin();
         // 可以在这里添加跳转到登录页的逻辑
         break;
       case 403:

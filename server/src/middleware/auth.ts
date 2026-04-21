@@ -7,7 +7,7 @@ const auth = async (req: Request, res: Response, next: NextFunction): Promise<vo
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
       res.status(401).json({
-        code: 401,
+        code: 40001,
         message: '未提供认证令牌',
         data: null
       });
@@ -17,7 +17,7 @@ const auth = async (req: Request, res: Response, next: NextFunction): Promise<vo
     const decoded = verifyToken(token);
     if (!decoded) {
       res.status(401).json({
-        code: 401,
+        code: 40001,
         message: '无效的认证令牌',
         data: null
       });
@@ -28,7 +28,7 @@ const auth = async (req: Request, res: Response, next: NextFunction): Promise<vo
 
     if (!user) {
       res.status(401).json({
-        code: 401,
+        code: 40002,
         message: '用户不存在',
         data: null
       });

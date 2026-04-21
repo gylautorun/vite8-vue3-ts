@@ -1,0 +1,11 @@
+[
+  {
+    "id": 1,
+    "name": "管理员",
+    "email": "admin@example.com",
+    "password": "$2b$10$wDYf.GNu48zaYsaaar2LgOeSp6cPIOOkUc3n7rUDB5KGH7na2n87.",
+    "avatar": "https://via.placeholder.com/150",
+    "createdAt": "2026-04-21T08:05:22.192Z",
+    "updatedAt": "2026-04-21T08:21:12.796Z"
+  }
+]

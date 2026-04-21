@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
-import connectDB from './config/database';
+// import connectDB from './config/database';
+import connectDB from './config/define-data';
 import errorHandler from './middleware/errorHandler';
 
 // 路由

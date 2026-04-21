@@ -1,4 +1,5 @@
-import { db } from '../config/database';
+// import { db } from '../config/database';
+import { db } from '../config/define-data';
 
 export interface OrderItem {
   productId: number;

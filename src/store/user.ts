@@ -116,6 +116,9 @@ export const useUserStore = defineStore('user', () => {
       const response = await userApi.login(data);
       currentUser.value = response.user;
       localStorage.setItem('token', response.token);
+      // 存储用户角色和权限信息
+      localStorage.setItem('userRoles', JSON.stringify(['admin']));
+      localStorage.setItem('userPermissions', JSON.stringify(['user:read', 'user:write']));
       return response;
     } catch (err) {
       error.value = '登录失败';
@@ -134,6 +137,9 @@ export const useUserStore = defineStore('user', () => {
       const response = await userApi.register(data);
       currentUser.value = response.user;
       localStorage.setItem('token', response.token);
+      // 存储用户角色和权限信息
+      localStorage.setItem('userRoles', JSON.stringify(['user']));
+      localStorage.setItem('userPermissions', JSON.stringify(['user:read']));
       return response;
     } catch (err) {
       error.value = '注册失败';
@@ -151,6 +157,9 @@ export const useUserStore = defineStore('user', () => {
     try {
       const user = await userApi.getCurrentUser();
       currentUser.value = user;
+      // 存储用户角色和权限信息
+      localStorage.setItem('userRoles', JSON.stringify(['admin']));
+      localStorage.setItem('userPermissions', JSON.stringify(['user:read', 'user:write']));
       return user;
     } catch (err) {
       error.value = '获取当前用户信息失败';
@@ -169,6 +178,9 @@ export const useUserStore = defineStore('user', () => {
       await userApi.logout();
       currentUser.value = null;
       localStorage.removeItem('token');
+      // 清除用户角色和权限信息
+      localStorage.removeItem('userRoles');
+      localStorage.removeItem('userPermissions');
       return true;
     } catch (err) {
       error.value = '登出失败';

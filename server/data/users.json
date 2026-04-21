@@ -7,5 +7,14 @@
     "avatar": "https://via.placeholder.com/150",
     "createdAt": "2026-04-21T08:05:22.192Z",
     "updatedAt": "2026-04-21T08:21:12.796Z"
+  },
+  {
+    "name": "admin",
+    "email": "admin@163.com",
+    "password": "$2b$10$G9LdkSlMIhvXNZ/pkk3T0.GpZfQQCHhOvdFYHox.BGf/dnza57QJ2",
+    "avatar": "https://via.placeholder.com/150",
+    "id": 1776760904228,
+    "createdAt": "2026-04-21T08:41:43.824Z",
+    "updatedAt": "2026-04-21T08:41:43.824Z"
   }
 ]

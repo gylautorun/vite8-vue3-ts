@@ -114,6 +114,18 @@ const router = createRouter({
 });
 
 /**
+ * 跳转403
+ */
+function redirect403OrHome(next: (path: string) => void) {
+  // 检查是否有 403 页面，如果没有则跳转到首页
+    const has403Route = routes.some(route => route.path === '/403');
+    if (has403Route) {
+      next('/403');
+    } else {
+      next('/');
+  }
+}
+/**
  * beforeEach 路由守卫 ：
   - 进度条管理 ：路由跳转开始时显示进度条
   - 页面标题设置 ：根据路由 meta 信息动态设置页面标题
@@ -156,7 +168,7 @@ router.beforeEach((to, _from, next) => {
     
     if (!hasPermission) {
       NProgress.done();
-      next('/403');
+      redirect403OrHome(next);
       return;
     }
   }
@@ -169,7 +181,7 @@ router.beforeEach((to, _from, next) => {
     
     if (!hasPermission) {
       NProgress.done();
-      next('/403');
+      redirect403OrHome(next);
       return;
     }
   }

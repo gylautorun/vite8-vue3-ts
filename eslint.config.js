@@ -85,4 +85,4 @@ export default [
       'comma-style': ['error', 'last']
     }
   }
-]
+];

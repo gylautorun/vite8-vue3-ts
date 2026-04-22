@@ -1,14 +1,5 @@
 [
   {
-    "id": 1,
-    "name": "管理员",
-    "email": "admin@example.com",
-    "password": "$2b$10$wDYf.GNu48zaYsaaar2LgOeSp6cPIOOkUc3n7rUDB5KGH7na2n87.",
-    "avatar": "https://via.placeholder.com/150",
-    "createdAt": "2026-04-21T08:05:22.192Z",
-    "updatedAt": "2026-04-21T08:21:12.796Z"
-  },
-  {
     "name": "admin",
     "email": "admin@163.com",
     "password": "$2b$10$G9LdkSlMIhvXNZ/pkk3T0.GpZfQQCHhOvdFYHox.BGf/dnza57QJ2",
@@ -16,5 +7,23 @@
     "id": 1776760904228,
     "createdAt": "2026-04-21T08:41:43.824Z",
     "updatedAt": "2026-04-21T08:41:43.824Z"
+  },
+  {
+    "name": "张三",
+    "email": "zhangsan@163.com",
+    "password": "$2b$10$QGsMgrNst1g3ADRrJ2NL1.FdSX/S4ngtMkWBdYpj2BomJKbPQ8wU2",
+    "avatar": "https://via.placeholder.com/150",
+    "id": 1776819936897,
+    "createdAt": "2026-04-22T01:05:36.645Z",
+    "updatedAt": "2026-04-22T01:05:36.645Z"
+  },
+  {
+    "name": "李四",
+    "email": "lisi@163.com",
+    "password": "$2b$10$hAe369Ae6pDLXP7q4NUdLO0C/rjyH3GkcqhwB.BeRIGTAyg6rG2vq",
+    "avatar": "https://via.placeholder.com/150",
+    "id": 1776819983913,
+    "createdAt": "2026-04-22T01:06:23.623Z",
+    "updatedAt": "2026-04-22T01:06:23.623Z"
   }
 ]
